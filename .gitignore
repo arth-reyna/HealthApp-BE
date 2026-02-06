@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+
+# Coverage
+coverage
+
+# Bower dependency directory
+bower_components
+
+# Dependency directories
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Environment variables file
+.env
+
+# Output of 'npm pack'
+*.tgz
+
+# Editors and IDEs
+.vscode/
+.idea/
+.cache
+.next
+out
+.nuxt
+dist
