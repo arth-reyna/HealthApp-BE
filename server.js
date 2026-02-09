@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import dbConnect from './config/db.js';
 import cors from 'cors';
 
-import baseRoutes from './routes/baseRoutes.js';
+import baseRoutes from './routes/baseRoutes.js'
 
 dotenv.config()
 const PORT = process.env.PORT || 5001;
