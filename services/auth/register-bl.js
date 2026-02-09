@@ -7,6 +7,7 @@ const userRegister = async (data) => {
         const { email, password } = data;
         // console.log(email, password);
 
+        // Find User
         const existingUser = await User.findOne({ email });
         console.log("User : ", existingUser);
 
