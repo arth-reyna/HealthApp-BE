@@ -12,6 +12,7 @@ const userLogin = async (req, res) => {
         code: 404,
         message: "Enter Email or Password",
         sucess: false,
+
       });
     }
 
@@ -31,7 +32,7 @@ const userLogin = async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.code(401).json({
+      return res.status(401).json({
         code: 401,
         message: "Credentials are incorrect",
         sucess: false,
@@ -40,7 +41,12 @@ const userLogin = async (req, res) => {
 
     // // Generate Token
     const token = generateToken(user._id);
-    
+
+    //Storing in httpOnly Cookie
+    res.cookie("token", token, {
+      httpOnly: true
+    });
+
     console.log("Login TOken: ", token);
 
     //User Logged in Scussful.
