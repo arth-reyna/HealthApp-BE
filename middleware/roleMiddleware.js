@@ -8,7 +8,8 @@ export const roleMiddleware = (...roles) => {
     if (!roles.includes(role)) {
       return res.status(403).json({
         code: 403,
-        message: "Not Allowed",
+        message: "Not Allowed to access unauthorized page",
+        success: false
       });
     }
     next();

@@ -19,6 +19,14 @@ const userRegister = async (req, res) => {
       });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({
+        code: 400,
+        message: "Password must contain atleast characters",
+        success: false
+      })
+    }
+
     //Hash Password bfor register
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
@@ -39,9 +47,8 @@ const userRegister = async (req, res) => {
     return res.status(201).json({
       message: "User created successfully",
       code: 201,
-      token: token
+      token: token,
     });
-
   } catch (error) {
     console.log("Register Error: ", error);
 

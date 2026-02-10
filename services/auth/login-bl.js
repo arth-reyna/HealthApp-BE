@@ -49,6 +49,7 @@ const userLogin = async (req, res) => {
       message: "Login Sucessfull",
       sucess: true,
       token: token,
+      role: user.role
     });
   } catch (error) {
     console.log(error);
