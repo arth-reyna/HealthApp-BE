@@ -30,7 +30,7 @@ app.use(
   }),
 );
 
-app.use(cookieParser());
+app.use(cookieParser(process.env.JWT_SECRET));
 
 // Routes
 app.get("/", (req, res) => {
