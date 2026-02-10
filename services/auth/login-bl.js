@@ -17,7 +17,7 @@ const userLogin = async (req, res) => {
 
     // Find User
     const user = await User.findOne({ email });
-    console.log("User: ",user);
+    // console.log("User: ", user);
 
     // Check if user is present or not.
     if (!user) {
@@ -41,6 +41,7 @@ const userLogin = async (req, res) => {
 
     //Generate Token
     const token = generateToken(user._id, user.role, res);
+    console.log("token ",token)
 
     //User Logged in Scussful.
     return res.status(200).json({
@@ -49,7 +50,6 @@ const userLogin = async (req, res) => {
       sucess: true,
       token: token,
     });
-    
   } catch (error) {
     console.log(error);
   }

@@ -12,29 +12,28 @@ export const authMiddleware = async (req, res, next) => {
       if (payload) {
         console.log("Payload: ", payload);
         req.user = payload;
-        
-        const role = User.findOne({ payload })
+
+        const role = User.findOne({ payload });
         // console.log(role);
-        
 
         next();
       } else {
         throw new Error("Not Authorized");
       }
-    }else{
+    } else {
       return res.status(400).json({
         code: 400,
         message: "Tokken not present",
-        sucess: false
-      })
+        sucess: false,
+      });
     }
   } catch (error) {
     console.error("Error during Middleware Auth: ", error.message);
 
     return res.status(400).json({
-        code: 400,
-        message: "Tokken not present",
-        sucess: false
-      })
+      code: 400,
+      message: "Tokken not present",
+      sucess: false,
+    });
   }
 };

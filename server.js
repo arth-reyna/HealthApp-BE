@@ -13,7 +13,15 @@ const PORT = process.env.PORT || 5001;
 // Initialize Server
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173/", "http://localhost:3000"];
+const allowedOrigins = "http://localhost:5173/";
+
+
+const corsOption = {
+  origin: ["http://localhost:5173/","http://localhost:5001/api/auth/login", "http://localhost:3000"],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}
 
 app.use(express.json());
 app.use(
@@ -30,7 +38,8 @@ app.use(
   }),
 );
 
-app.use(cookieParser(process.env.JWT_SECRET));
+// app.use(cors(corsOption));
+app.use(cookieParser());
 
 // Routes
 app.get("/", (req, res) => {
