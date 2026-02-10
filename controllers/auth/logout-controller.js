@@ -10,12 +10,16 @@ const logoutController = async (req, res) => {
             code: 200,
             message: "Logged out sucess",
             sucess: true,
-            data: logoutConn
         })
 
     } catch (error) {
         console.error("Error during logout");
-        return error;
+        
+        return res.status(400).json({
+            code: 400,
+            message: "Error during Logout happened at Controller",
+            success: false 
+        })
     }
 }
 

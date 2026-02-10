@@ -2,10 +2,10 @@ import { User } from "../../models/auth/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../../utils/jwt.js";
 
-const userRegister = async (data) => {
+const userRegister = async (req, res) => {
   try {
-    const { email, password } = data;
-    // console.log(email, password);
+    const { email, password } = req.body;
+    console.log(email, password);
 
     // Find User
     const existingUser = await User.findOne({ email });
@@ -13,10 +13,10 @@ const userRegister = async (data) => {
 
     // Checking Existing User
     if (existingUser) {
-      return {
+      return res.status(400).json({
         message: "User already exists",
         code: 400,
-      };
+      });
     }
 
     //Hash Password bfor register
@@ -33,20 +33,23 @@ const userRegister = async (data) => {
     });
 
     //Sign JWT token
-    const token = generateToken(user._id);
+    const token = await generateToken(user._id, user.role, res);
+    console.log("Token: ", token);
 
-    return {
+    return res.status(201).json({
       message: "User created successfully",
       code: 201,
-      token: token,
-    };
+      token: token
+    });
+
   } catch (error) {
     console.log("Register Error: ", error);
-    return {
+
+    return res.status(500).json({
       success: false,
       code: 500,
       message: "Error registering user",
-    };
+    });
   }
 };
 

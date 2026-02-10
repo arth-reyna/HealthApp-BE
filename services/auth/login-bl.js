@@ -40,7 +40,7 @@ const userLogin = async (req, res) => {
     }
 
     //Generate Token
-    const token = generateToken(user._id, user.role, res);
+    const token = await generateToken(user._id, user.role, res);
     console.log("token ",token)
 
     //User Logged in Scussful.

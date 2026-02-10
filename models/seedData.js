@@ -15,7 +15,6 @@ const createUsers = async () => {
         role: "superadmin",
         isActive: true,
       },
-      
     ]);
 
     console.log("✅ All users added successfully");
