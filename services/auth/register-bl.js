@@ -48,6 +48,8 @@ const userRegister = async (req, res) => {
       message: "User created successfully",
       code: 201,
       token: token,
+      role: user.role,
+      success: true
     });
   } catch (error) {
     console.log("Register Error: ", error);
