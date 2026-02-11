@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "teacher", "admin", "superadmin"],
       default: "user",
-      index: true
+      index: true,
     },
     password: {
       type: String,
@@ -20,7 +20,13 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-      index: true
+      index: true,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
     },
   },
   { timestamps: true },

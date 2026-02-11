@@ -1,20 +1,15 @@
 import { overviewBL } from "../../services/super-admin/overview-bl.js";
+import { sendSuccess } from "../../utils/responseHandler.js";
 
-export const overviewController = async (req, res) => {
+export const overviewController = async (req, res, next) => {
   try {
-    const getOverview = await overviewBL();
+    const dashboardData = await overviewBL();
 
-    return res.status(200).json({
-      code: 200,
-      totalUsers: getOverview,
-    });
-    
+    return sendSuccess(res, "Admin Dashboard", dashboardData);
+
   } catch (error) {
     console.error("overviewController Error: ", error.message);
-
-    return res.status(400).json({
-      code: 400,
-      message: "Error getting data.",
-    });
+    next(error);
+    
   }
 };

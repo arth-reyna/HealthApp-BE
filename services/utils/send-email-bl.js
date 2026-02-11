@@ -1,44 +1,49 @@
-import { transporter } from '../../utils/email.js'
+import { transporter } from "../../utils/email.js";
 import { User } from "../../models/auth/User.js";
+import { badRequest } from "../../utils/responseHandler.js";
+import crypto from "crypto";
 
 export const sendForgetPassMail = async (req, res) => {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        const user = await User.findOne({ email });
-        if(!user){
-            return res.status(400).json({
-                code: 400,
-                message: "Email not found",
-                success: false
-            });
-        }
-
-        const link = `http://localhost:5001/api/auth/reset/${user._id}`;
-        const message = `Reset by clicking this link: ${link}`;
-
-        console.log("Reset Link: ", link);
-
-        await transporter.sendMail({
-            to: email,
-            subject: "Reset your Password",
-            html: message
-        })
-
-        return res.status(200).json({
-            code: 200,
-            message: "Mail sent sucessfully",
-            success: true
-        })
-
-    } catch (error) {
-        console.error(error.message);
-
-        return res.status(400).json({
-            code: 400,
-            message: "Error sending Mail",
-            success: false
-        })
+    const user = await User.findOne({ email });
+    if (!user) {
+      return badRequest(res, "Email not found");
     }
-}
 
+    //Create ResetToken
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    console.log(resetToken);
+
+    //Create Hash token from reset token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    console.log("Send Mail Hashed token: ", hashedToken);
+
+    //Assign the hashed token to user:
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // this is 10 minutes
+
+    // save the data instantly to d database,
+    await user.save();
+
+    const link = `http://localhost:5001/api/auth/reset/${user._id}/${hashedToken}`;
+    const message = `Reset by clicking this link: ${link}`;
+
+    console.log("Reset Link: ", link);
+
+    const mail = await transporter.sendMail({
+      to: email,
+      subject: "Reset your Password",
+      html: message,
+    });
+
+    return mail.envelope;
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
+};

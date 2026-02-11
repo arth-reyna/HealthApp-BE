@@ -1,20 +1,16 @@
 import userRegisterBL from "../../services/auth/register-bl.js";
+import { internalServerError, sendCreated } from "../../utils/responseHandler.js";
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const result = await userRegisterBL(req, res);
-    // console.log("Register Result: ", result);
 
-    // return res.status(201).json({ result });
+    return sendCreated(res, "User created successfully", result);
 
   } catch (error) {
-
     console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Error registering user",
-    });
-
+    next(error);
+    
   }
 };
 

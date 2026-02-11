@@ -1,6 +1,9 @@
 import { User } from "../../models/auth/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../../utils/jwt.js";
+import { findOneEmail } from "../../utils/dbQueryHelper.js";
+import { notFound, badRequest, sendSuccess } from "../../utils/responseHandler.js";
+
 
 const userLogin = async (req, res) => {
   try {
@@ -8,51 +11,39 @@ const userLogin = async (req, res) => {
 
     // Check Email and Password
     if (!email || !password) {
-      return res.status(404).json({
-        code: 404,
-        message: "Enter Email or Password",
-        sucess: false,
-      });
+      return notFound(res, "Enter email or password");
+
     }
 
     // Find User
-    const user = await User.findOne({ email });
-    // console.log("User: ", user);
+    const user = await findOneEmail({
+      model: User,
+      query: email,
+    });
 
     // Check if user is present or not.
     if (!user) {
-      return res.status(404).json({
-        code: 404,
-        message: "User not Found",
-        sucess: false,
-      });
+      return notFound(res, "User not Found");
+
     }
 
     // Verify Password
     const isValidPassword = await bcrypt.compare(password, user.password);
-
     if (!isValidPassword) {
-      return res.status(401).json({
-        code: 401,
-        message: "Credentials are incorrect",
-        sucess: false,
-      });
+      return badRequest(res, "Incorrect credentials");
+
     }
 
     //Generate Token
     const token = await generateToken(user._id, user.role, res);
-    console.log("token ",token)
+    console.log("token ", token);
 
-    //User Logged in Scussful.
-    return res.status(200).json({
-      code: 200,
-      message: "Login Sucessfull",
-      sucess: true,
-      token: token,
-      role: user.role
-    });
+    return sendSuccess(res, "Login Successful", {token: token, role: user.role});
+
   } catch (error) {
+
     console.log(error);
+    throw error;
   }
 };
 

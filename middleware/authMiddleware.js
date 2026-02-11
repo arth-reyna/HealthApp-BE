@@ -1,5 +1,6 @@
 import { User } from "../models/auth/User.js";
 import { verifyToken } from "../utils/jwt.js";
+import { badRequest } from "../utils/responseHandler.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
@@ -7,13 +8,13 @@ export const authMiddleware = async (req, res, next) => {
     console.log("token from middleware: ", token);
 
     if (token) {
-      const payload = verifyToken(token);
+      const payload = await verifyToken(token);
 
       if (payload) {
         console.log("Payload: ", payload);
         req.user = payload;
 
-        const role = User.findOne({ payload });
+        const role = await User.findOne({ payload });
         // console.log(role);
 
         next();
@@ -21,19 +22,11 @@ export const authMiddleware = async (req, res, next) => {
         throw new Error("Not Authorized");
       }
     } else {
-      return res.status(400).json({
-        code: 400,
-        message: "Tokken not present",
-        sucess: false,
-      });
+      return badRequest(res, "Token not present");
     }
   } catch (error) {
     console.error("Error during Middleware Auth: ", error.message);
 
-    return res.status(400).json({
-      code: 400,
-      message: "Tokken not present",
-      sucess: false,
-    });
+    return badRequest(res, "Token not present");
   }
 };

@@ -1,25 +1,16 @@
-import { logoutBL } from "../../services/auth/logout-bl.js"
+import { logoutBL } from "../../services/auth/logout-bl.js";
+import { sendSuccess } from "../../utils/responseHandler.js"
 
-const logoutController = async (req, res) => {
+const logoutController = async (req, res, next) => {
     try {
 
         const logoutConn = await logoutBL(req, res);
-        // console.log("Logged out: ",logoutConn);
 
-        return res.status(200).json({
-            code: 200,
-            message: "Logged out sucess",
-            sucess: true,
-        })
+        return sendSuccess(res, "Logged out successfully", logoutConn)
 
     } catch (error) {
         console.error("Error during logout");
-        
-        return res.status(400).json({
-            code: 400,
-            message: "Error during Logout happened at Controller",
-            success: false 
-        })
+        next(error);
     }
 }
 

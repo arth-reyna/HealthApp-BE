@@ -1,15 +1,16 @@
-import { sendForgetPassMail } from '../../services/utils/send-email-bl.js';
+import { sendForgetPassMail } from "../../services/utils/send-email-bl.js";
+import { sendSuccess } from "../../utils/responseHandler.js";
 
-const forgotPassword = async (req, res) => {
-    try {
-        const forgotPassCall = await sendForgetPassMail(req, res);
-        return forgotPassCall;
+const forgotPassword = async (req, res, next) => {
+  try {
+    const forgotPassCall = await sendForgetPassMail(req, res);
 
-    } catch (error) {
-        console.error(error)
-
-        return error;
-    }
-}
+    return sendSuccess(res, "Mail sent successfully", forgotPassCall);
+    
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
 
 export default forgotPassword;
