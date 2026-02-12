@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,
@@ -9,9 +12,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "teacher", "admin", "superadmin"],
-      default: "user",
+      enum: ["student", "teacher", "admin", "superadmin"],
+      default: "student",
       index: true,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
     },
     password: {
       type: String,
@@ -22,10 +29,10 @@ const userSchema = new mongoose.Schema(
       default: true,
       index: true,
     },
-    resetPasswordToken: {
+    passwordToken: {
       type: String,
     },
-    resetPasswordExpires: {
+    passwordExpires: {
       type: Date,
     },
   },

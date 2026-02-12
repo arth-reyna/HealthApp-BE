@@ -24,6 +24,4 @@ export const deleteJwtToken = async (res) => {
     httpOnly: false,
     signed: false,
   });
-
-
 };

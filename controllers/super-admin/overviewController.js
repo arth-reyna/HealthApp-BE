@@ -6,10 +6,8 @@ export const overviewController = async (req, res, next) => {
     const dashboardData = await overviewBL();
 
     return sendSuccess(res, "Admin Dashboard", dashboardData);
-
   } catch (error) {
     console.error("overviewController Error: ", error.message);
     next(error);
-    
   }
 };

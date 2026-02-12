@@ -3,13 +3,13 @@ import { createOne, findOneEmail } from "../../utils/dbQueryHelper.js";
 import { badRequest } from "../../utils/responseHandler.js";
 import bcrypt from "bcryptjs";
 
-export const createUser = async (req, res) => {
+export const createAdmin = async (req, res) => {
   try {
-    const { email, role, password } = req.body;
+    const { email, password, gender} = req.body;
 
     // Check if details empty or not
-    if (!email || !role || !password) {
-      return badRequest(res, "Some details are missing");
+    if (!email || !gender || !password) {
+      return badRequest(res, `Some details are missing: ${email || gender || password}`);
     }
 
     // Check if email present or already exists
@@ -22,6 +22,7 @@ export const createUser = async (req, res) => {
       return badRequest(res, "Email already exists!");
     }
 
+    // Perform Password Validation Basic
     if(password.length < 6){
         return badRequest(res, "Password must be over 6 characters");
     }
@@ -34,8 +35,9 @@ export const createUser = async (req, res) => {
       model: User,
       query: {
         email: email,
-        role: role,
+        role: "user",
         password: hashPassword,
+        gender: gender
       },
     });
 

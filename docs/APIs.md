@@ -31,6 +31,6 @@
 
 - /api/superadmin/dashboard/overview : Overview about all data
 - /api/superadmin/dashboard/create-admin
-- /api/superadmin/dashboard/create-user
+- /api/superadmin/dashboard/create-user : This will create user / student.
 - /api/superadmin/dashboard/users
 - /api/superadmin/dashboard/user/:id

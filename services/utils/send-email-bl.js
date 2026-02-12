@@ -14,7 +14,7 @@ export const sendForgetPassMail = async (req, res) => {
 
     //Create ResetToken
     const resetToken = crypto.randomBytes(32).toString("hex");
-    console.log(resetToken);
+    console.log("Reset Token: ",resetToken);
 
     //Create Hash token from reset token
     const hashedToken = crypto
@@ -24,13 +24,13 @@ export const sendForgetPassMail = async (req, res) => {
     console.log("Send Mail Hashed token: ", hashedToken);
 
     //Assign the hashed token to user:
-    user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // this is 10 minutes
+    user.passwordToken = hashedToken;
+    user.passwordExpires = Date.now() + 10 * 60 * 1000; // this is 10 minutes
 
     // save the data instantly to d database,
     await user.save();
 
-    const link = `http://localhost:5001/api/auth/reset/${user._id}/${hashedToken}`;
+    const link = `http://localhost:5002/api/auth/reset/${user._id}/${hashedToken}`;
     const message = `Reset by clicking this link: ${link}`;
 
     console.log("Reset Link: ", link);

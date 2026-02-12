@@ -18,76 +18,72 @@ export const overviewBL = async () => {
     //   inActiveUsers: inActiveUsers,
     // };
 
-
     // Testing Aggregation Query
     const allData = await User.aggregate([
       {
         $facet: {
-          "activeUsers": [
+          activeUsers: [
             {
               $match: {
-                isActive: true
+                isActive: true,
               },
             },
             {
-              $count: "activeUsers"
-            }
+              $count: "activeUsers",
+            },
           ],
 
-          "inActiveUsers": [
+          inActiveUsers: [
             {
               $match: {
-                isActive: false
-              }
+                isActive: false,
+              },
             },
             {
-              $count: "inActiveUsers"
-            }
+              $count: "inActiveUsers",
+            },
           ],
 
-          "totalUsers": [{
-            $match: {
-              role: "user"
-            }
-          },
-          {
-            $count: "totalUsers"
-          }
+          totalUsers: [
+            {
+              $match: {
+                role: "user",
+              },
+            },
+            {
+              $count: "totalUsers",
+            },
           ],
 
-          "totalAdmins": [{
-            $match: {
-              role: "admin"
-            }
-          },
-          {
-            $count: "totalAdmins"
-          }]
-        }
-      }
+          totalAdmins: [
+            {
+              $match: {
+                role: "admin",
+              },
+            },
+            {
+              $count: "totalAdmins",
+            },
+          ],
+        },
+      },
     ]);
 
-    const [activeUsers, inActiveUsers, totalAdmins, totalUsers] =
-      [
-        allData?.[0]?.activeUsers[0]?.activeUsers ?? 0,
-        allData?.[0]?.inActiveUsers[0]?.inActiveUsers ?? 0,
-        allData?.[0]?.totalAdmins[0]?.totalAdmins ?? 0,
-        allData?.[0]?.totalUsers[0]?.totalUsers ?? 0
-      ]
-
-
+    const [activeUsers, inActiveUsers, totalAdmins, totalUsers] = [
+      allData?.[0]?.activeUsers[0]?.activeUsers ?? 0,
+      allData?.[0]?.inActiveUsers[0]?.inActiveUsers ?? 0,
+      allData?.[0]?.totalAdmins[0]?.totalAdmins ?? 0,
+      allData?.[0]?.totalUsers[0]?.totalUsers ?? 0,
+    ];
 
     return {
       activeUsers: activeUsers,
       inActiveUsers: inActiveUsers,
       totalAdmins: totalAdmins,
-      totalUsers: totalUsers
-    }
-
+      totalUsers: totalUsers,
+    };
   } catch (error) {
     console.error("Overview BL Error: ", error);
     throw error;
   }
 };
-
-
