@@ -1,51 +1,50 @@
-export const findOneEmail = async (data) => {
-  const { model, query } = data;
-  const find = await model.findOne({ email: query });
-
-  return find;
-};
-
-export const findByRole = async (data) => {
-  const { model, query } = data;
-  const find = await model.find({ role: query });
-
-  return find;
-};
-
-export const findByID = async (data) => {
-  const { model, query } = data;
-  const find = await model.findOne({ email: query });
-
-  return find;
-};
-
-export const findAll = async (data) => {
-  const { model, query, select } = data;
-  const find = await model.find(query).select(select ?? "");
-  return find;
-};
-
-export const find = async ({ model, filter = {} }) => {
+export const find = async (data) => {
+  const { model, filter } = data;
   const result = await model.find(filter);
+
   return result;
 };
 
-export const create = async ({model, data, options = {} }) => {
-  const res = await model.create(data, options);
-  console.log("Res: ", res);
+export const findOne = async (data) => {
+  const { model, filter } = data;
+  const result = await model.findOne(filter);
+  return result;
+};
 
-  return res;
-}
+export const create = async (data) => {
+  const { model, data: createData } = data;
+  const result = await model.create(createData);
 
-export const update = async (data) => {
+  return result;
+};
+
+export const updateOne = async (data) => {
   const { model, filter, update } = data;
-  const result = await model.updateMany(filter, update);
+  const result = await model.findOneAndUpdate(
+    filter,
+    { $set: update },
+    { new: true },
+  );
+  return result;
+};
+
+export const updateMany = async (data) => {
+  const { model, filter, update } = data;
+  const result = await model.updateMany(filter, { $set: update });
 
   return result;
 };
 
-// Aggregate Query
-// export const aggregateQuery = async (data) => {
-//   const { model, query } = data;
-//   const aggregate = await model.aggregate({});
-// };
+export const deleteOne = async (data) => {
+  const { model, filter } = data;
+  const result = await model.findOneAndDelete(filter);
+
+  return result;
+};
+
+export const deleteMany = async (data) => {
+  const { model, filter } = data;
+  const result = await model.deleteMany(filter);
+
+  return result;
+};

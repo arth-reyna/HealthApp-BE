@@ -43,8 +43,7 @@ export const deleteController = async (req, res, next) => {
   try {
     const del = await deleteUserBL(req, res);
 
-    return sendSuccess(res, "deleted successfully", del);
-    
+    return sendSuccess(res, "deleted successfully", del.email);
   } catch (error) {
     console.error(error);
     next(error);

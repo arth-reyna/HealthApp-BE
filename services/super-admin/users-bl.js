@@ -1,9 +1,10 @@
 import { User } from "../../models/auth/User.js";
 import {
   create,
-  findOneEmail,
-  findByRole,
-  findByID,
+  find,
+  findOne,
+  updateOne,
+  deleteOne,
 } from "../../utils/dbQueryHelper.js";
 import { badRequest, notFound } from "../../utils/responseHandler.js";
 import bcrypt from "bcryptjs";
@@ -12,22 +13,22 @@ export const createUserBL = async (req, res) => {
   try {
     const { email, password, gender, name } = req.body;
 
-    // Check if details empty or not
+    // Check if details empty
     if (!email || !gender || !password || !name) {
       return badRequest(res, `Some details are missing`);
     }
 
-    // Check if email present or already exists
-    const emailValidate = await findOneEmail({
+    // Check if email already exists
+    const emailValidate = await findOne({
       model: User,
-      query: email,
+      filter: { email: email },
     });
 
     if (emailValidate) {
       return badRequest(res, "Email already exists!");
     }
 
-    // Perform Password Validation Basic
+    // Password Validation Basic
     if (password.length < 6) {
       return badRequest(res, "Password must be over 6 characters");
     }
@@ -38,8 +39,9 @@ export const createUserBL = async (req, res) => {
 
     const user = await create({
       model: User,
-      query: {
+      data: {
         email: email,
+        name: name,
         role: "student",
         password: hashPassword,
         gender: gender,
@@ -57,9 +59,9 @@ export const createUserBL = async (req, res) => {
 
 export const allUsersBL = async (req, res) => {
   try {
-    const allUsers = await findByRole({
+    const allUsers = await find({
       model: User,
-      query: "user",
+      filter: { role: "student" },
     });
 
     return allUsers;
@@ -78,13 +80,11 @@ export const editUserBL = async (req, res) => {
       return badRequest(res, "Invalid ID or URL");
     }
 
-    //Check if ID present or not.
-    // const user = await findByID({
-    //     model: User,
-    //     query: email
-    // })
-
-    const user = User.findOne({ id });
+    // Check if user exists
+    const user = await findOne({
+      model: User,
+      filter: { _id: id },
+    });
 
     // console.log("User: ", user);
 
@@ -92,10 +92,9 @@ export const editUserBL = async (req, res) => {
       return notFound(res, "User not Found");
     }
 
-    // Take Updated values
-    // const { email, password, gender, isActive, role } = req.body;
+    // update data
     const { password, ...otherData } = req.body;
-    const updateData = { otherData };
+    const updateData = { ...otherData };
 
     console.log("New Data: ", updateData);
 
@@ -104,27 +103,17 @@ export const editUserBL = async (req, res) => {
         return badRequest(res, "Password must be over 6 characters");
       }
 
-      //If not, then hash the password before creating user.
+      // Hash the password
       const salt = await bcrypt.genSalt(10);
       updateData.password = await bcrypt.hash(password, salt);
-
-      console.log("final udate +: ",updateData)
     }
-    console.log("last final: ",updateData)
 
-    //Update Values
-    // user.email = email || user.email;
-
-    // if (gender !== undefined) user.gender = gender;
-    // if (isActive !== undefined) user.isActive = isActive;
-
-    // if (role && req.user?.role === "superadmin") {
-    //   user.role = role;
-    // }
-
-    // user.password = hashPassword;
-
-    const updated = await User.findByIdAndUpdate(id, {$set: updateData});
+    // Update user
+    const updated = await updateOne({
+      model: User,
+      filter: { _id: id },
+      update: updateData,
+    });
 
     //Update once fetched values
     // await user.save();
@@ -147,7 +136,10 @@ export const deleteUserBL = async (req, res) => {
       return notFound(res, "id not found");
     }
 
-    const deleted = await User.findByIdAndDelete(id);
+    const deleted = await deleteOne({
+      model: User,
+      filter: { _id: id },
+    });
 
     return deleted;
   } catch (error) {

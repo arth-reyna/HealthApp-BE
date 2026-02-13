@@ -4,10 +4,10 @@ import { generateToken, deleteJwtToken } from "../../utils/jwt.js";
 import {
   notFound,
   badRequest,
-  sendSuccess,
 } from "../../utils/responseHandler.js";
-import { create, find, findOneEmail } from "../../utils/dbQueryHelper.js";
+import { create, findOne, updateOne } from "../../utils/dbQueryHelper.js";
 import crypto from "crypto";
+
 
 export const userLoginBL = async (req, res) => {
   try {
@@ -18,22 +18,11 @@ export const userLoginBL = async (req, res) => {
       return notFound(res, "Enter email or password");
     }
 
-    // Find User
-    // const user = await findOneEmail({
-    //   model: User,
-    //   query: email,
-    // });
-
-    // Dynamic Filter
-    const filter = {};
-    if (email) filter.email = email;
-
-    const UserArray = await find({
+    // Find user by email
+    const user = await findOne({
       model: User,
-      filter,
+      filter: { email: email }
     });
-
-    const [user] = UserArray;
 
     console.log("User: ", user);
 
@@ -52,10 +41,11 @@ export const userLoginBL = async (req, res) => {
     const token = await generateToken(user._id, user.role, res);
     console.log("token ", token);
 
-    return sendSuccess(res, "Login Successful", {
+    return {
       token: token,
       role: user.role,
-    });
+    };
+
   } catch (error) {
     console.log(error);
     throw error;
@@ -88,22 +78,11 @@ export const userRegisterBL = async (req, res) => {
       return badRequest(res, "Please enter email or password");
     }
 
-    // Find User
-    // const existingUser = await findOneEmail({
-    //   model: User,
-    //   query: email,
-    // });
-
-    //find by email
-    const filter = {};
-    if (email) filter.email = email;
-
-    const UserArray = await find({
+    // Check if user already exists
+    const existingUser = await findOne({
       model: User,
-      filter,
+      filter: { email: email }
     });
-
-    const [existingUser] = UserArray;
     console.log(existingUser);
 
 
@@ -112,20 +91,25 @@ export const userRegisterBL = async (req, res) => {
       return badRequest(res, "User already exists!");
     }
 
+    if(password){
     if (password.length < 6) {
-      return badRequest(res, "Password must contain atleast characters");
+      return badRequest(res, "Password must contain atleast 6 characters");
     }
+  }
 
     //Hash Password bfor register
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
     // Create new User
-    const user = await User.create({
-      email: email,
-      password: hashPassword,
-      gender: gender,
-      name: name,
+    const user = await create({
+      model: User,
+      data: {
+        email: email,
+        password: hashPassword,
+        gender: gender,
+        name: name,
+      }
     });
 
     //Sign JWT token
@@ -157,12 +141,12 @@ export const resetPasswordBL = async (req, res) => {
       return badRequest(res, "Password must contain atleast 6 characters");
     }
 
-    const filter = {}
-    if (id) filter.id = id;
-
-    const user = await User.findOne({
-      _id: id,
-      passwordExpires: { $gt: Date.now() },
+    const user = await findOne({
+      model: User,
+      filter: {
+        _id: id,
+        passwordExpires: { $gt: Date.now() }
+      }
     });
 
 
@@ -178,17 +162,16 @@ export const resetPasswordBL = async (req, res) => {
 
     console.log("Salt: ", salt, "Hashed Password: ", hashedPassword);
 
-    //Update password
-    await User.updateOne(
-      { _id: user._id },
-      { $set: { password: hashedPassword } },
-    );
-
-    //Once sucess, delete token and expiry time.
-    user.passwordToken = undefined;
-    user.passwordExpires = undefined;
-
-    await user.save();
+    //Update password and clear reset token
+    await updateOne({
+      model: User,
+      filter: { _id: user._id },
+      update: {
+        password: hashedPassword,
+        passwordToken: undefined,
+        passwordExpires: undefined
+      }
+    });
 
     // const user = await User.findByIdAndUpdate(
     //   { _id: id },

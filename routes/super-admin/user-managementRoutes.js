@@ -7,32 +7,52 @@ import {
   deleteController,
   editController,
 } from "../../controllers/super-admin/userController.js";
+import {
+  createAdminController,
+  editAdminController,
+  deleteAdminController,
+  getAdminController,
+} from "../../controllers/super-admin/adminController.js";
 
+const role = "superadmin";
 const router = express.Router();
 
 // User
-router.get("/user", authMiddleware, roleMiddleware("superadmin"), allUsers);
+router.get("/user", authMiddleware, roleMiddleware(role), allUsers);
 router.post(
   "/user",
   authMiddleware,
-  roleMiddleware("superadmin"),
+  roleMiddleware(role),
   createUserController,
 );
-router.put(
-  "/user/:id",
-  authMiddleware,
-  roleMiddleware("superadmin"),
-  editController,
-);
+router.put("/user/:id", authMiddleware, roleMiddleware(role), editController);
 router.delete(
   "/user/:id",
   authMiddleware,
-  roleMiddleware("superadmin"),
+  roleMiddleware(role),
   deleteController,
 );
 
 //Admin
-// router.post("/admin", authMiddleware, roleMiddleware(role), createAdminController);
+router.post(
+  "/admin",
+  authMiddleware,
+  roleMiddleware(role),
+  createAdminController,
+);
+router.put(
+  "/admin/:id",
+  authMiddleware,
+  roleMiddleware(role),
+  editAdminController,
+);
+router.delete(
+  "/admin/:id",
+  authMiddleware,
+  roleMiddleware(role),
+  deleteAdminController,
+);
+router.get("/admin", authMiddleware, roleMiddleware(role), getAdminController);
 
 //Teacher
 // router.post("/teacher", authMiddleware, roleMiddleware(role), createUserController);
