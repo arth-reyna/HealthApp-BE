@@ -1,4 +1,12 @@
-import { OK, BadRequest, Created, ServerError, NotFound, NotAuthorized } from "../statusCodes.js";
+import {
+  OK,
+  BadRequest,
+  Created,
+  ServerError,
+  NotFound,
+  NotAuthorized,
+  CastError,
+} from "../statusCodes.js";
 
 // 200 - OK
 export const sendSuccess = (res, message, data) => {
@@ -32,22 +40,31 @@ export const notAuthorized = (res, message, data) => {
   return res.status(NotAuthorized).json({
     success: false,
     message: message,
-    data: data
+    data: data,
   });
 };
 
 // 404 - Not Found
 export const notFound = (res, message, data) => {
-    return res.status(NotFound).json({
-        success: false,
-        message: message,
-        data: data
-    })
-}
+  return res.status(NotFound).json({
+    success: false,
+    message: message,
+    data: data,
+  });
+};
 
 // 500 Internal Server Error
 export const internalServerError = (res, message, data) => {
   return res.status(ServerError).json({
+    success: false,
+    message: message,
+    data: data,
+  });
+};
+
+// MongoDB Cast Error
+export const castError = (res, message, data) => {
+  return res.status(CastError).json({
     success: false,
     message: message,
     data: data,

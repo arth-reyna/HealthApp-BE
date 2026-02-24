@@ -1,13 +1,11 @@
 import { User } from "../../models/auth/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken, deleteJwtToken } from "../../utils/jwt.js";
-import {
-  notFound,
-  badRequest,
-} from "../../utils/responseHandler.js";
+import { notFound, badRequest } from "../../utils/responseHandler.js";
 import { create, findOne, updateOne } from "../../utils/dbQueryHelper.js";
 import crypto from "crypto";
-
+import { logger } from "../../utils/logger.js";
+import { BaseUserModel } from "../../module/user/user.model.js";
 
 export const userLoginBL = async (req, res) => {
   try {
@@ -15,25 +13,44 @@ export const userLoginBL = async (req, res) => {
 
     // Check Email and Password
     if (!email || !password) {
+      logger.warn({
+        level: "error",
+        message: "not entered email or password",
+        event: "LOGIN",
+        label: "STUDENT",
+      });
+
       return notFound(res, "Enter email or password");
     }
 
     // Find user by email
     const user = await findOne({
       model: User,
-      filter: { email: email }
+      filter: { email: email },
     });
-
-    console.log("User: ", user);
 
     // Check if user is present or not.
     if (!user) {
+      logger.warn({
+        level: "error",
+        message: "user not found",
+        event: "LOGIN",
+        label: "STUDENT",
+      });
+
       return notFound(res, "User not Found");
     }
 
     // Verify Password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
+      logger.warn({
+        level: "error",
+        message: "incorrect credentials",
+        event: "LOGIN",
+        label: "STUDENT",
+      });
+
       return badRequest(res, "Incorrect credentials");
     }
 
@@ -41,12 +58,24 @@ export const userLoginBL = async (req, res) => {
     const token = await generateToken(user._id, user.role, res);
     console.log("token ", token);
 
+    logger.info({
+      event: "LOGIN",
+      message: `user: ${user.email} login sucessful`,
+      label: "STUDENT",
+      meta: user.email,
+    });
+
     return {
       token: token,
       role: user.role,
     };
-
   } catch (error) {
+    logger.warn({
+      level: "error",
+      message: "error during login",
+      event: "LOGIN",
+      label: "STUDENT",
+    });
     console.log(error);
     throw error;
   }
@@ -59,7 +88,19 @@ export const logoutBL = async (req, res) => {
 
     if (token) {
       await deleteJwtToken(res);
+
+      logger.log({
+        level: "info",
+        message: "user logged out",
+        event: "LOGOUT",
+        label: "STUDENT",
+      });
     } else {
+      logger.warn({
+        message: "token not found",
+        event: "LOGOUT",
+        label: "STUDENT",
+      });
       return notFound(res, "Token not found");
     }
   } catch (error) {
@@ -75,27 +116,41 @@ export const userRegisterBL = async (req, res) => {
 
     // Email Regex
     if (!email || !password) {
+      logger.warn({
+        message: "not entered email or password",
+        event: "REGISTER",
+        label: "STUDENT",
+      });
       return badRequest(res, "Please enter email or password");
     }
 
     // Check if user already exists
     const existingUser = await findOne({
       model: User,
-      filter: { email: email }
+      filter: { email: email },
     });
     console.log(existingUser);
 
-
     // Checking Existing User
     if (existingUser) {
+      logger.warn({
+        message: "user already exists",
+        event: "REGISTER",
+        label: "STUDENT",
+      });
       return badRequest(res, "User already exists!");
     }
 
-    if(password){
-    if (password.length < 6) {
-      return badRequest(res, "Password must contain atleast 6 characters");
+    if (password) {
+      if (password.length < 6) {
+        logger.warn({
+          message: "password less than 6 characters",
+          event: "REGISTER",
+          label: "STUDENT",
+        });
+        return badRequest(res, "Password must contain atleast 6 characters");
+      }
     }
-  }
 
     //Hash Password bfor register
     const salt = await bcrypt.genSalt(10);
@@ -109,12 +164,19 @@ export const userRegisterBL = async (req, res) => {
         password: hashPassword,
         gender: gender,
         name: name,
-      }
+      },
     });
 
     //Sign JWT token
     const token = await generateToken(user._id, user.role, res);
     console.log("Token: ", token);
+
+    logger.log({
+      level: "info",
+      message: `user: ${user.email} registered`,
+      label: "STUDENT",
+      event: "REGISTER",
+    });
 
     return user;
   } catch (error) {
@@ -142,15 +204,14 @@ export const resetPasswordBL = async (req, res) => {
     }
 
     const user = await findOne({
-      model: User,
+      model: BaseUserModel,
       filter: {
         _id: id,
-        passwordExpires: { $gt: Date.now() }
-      }
+        passwordExpires: { $gt: Date.now() },
+      },
     });
 
-
-    console.log("User Details: ", user);
+    // console.log("User Details: ", user);
 
     if (!user) {
       return badRequest(res, "Token is invalid or expired");
@@ -164,26 +225,23 @@ export const resetPasswordBL = async (req, res) => {
 
     //Update password and clear reset token
     await updateOne({
-      model: User,
+      model: BaseUserModel,
       filter: { _id: user._id },
       update: {
         password: hashedPassword,
         passwordToken: undefined,
-        passwordExpires: undefined
-      }
+        passwordExpires: undefined,
+      },
     });
 
-    // const user = await User.findByIdAndUpdate(
-    //   { _id: id },
-    //   {
-    //     $set: {
-    //       password: hashPassword,
-    //     },
-    //   },
-    // );
-
-    // await User.updateOne({ id }, {$set: {password: hashPassword }})
     console.log(`Password for USerID: ${id} updated sucessfuly.`);
+
+    logger.log({
+      level: "info",
+      message: `user with ${id} reset password successfully`,
+      event: "RESET",
+      label: "STUDENT",
+    });
 
     return user;
   } catch (error) {

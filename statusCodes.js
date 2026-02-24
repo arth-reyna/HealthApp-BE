@@ -16,3 +16,4 @@ export const RequestTimeout = 408;
 export const TooManyRequest = 429;
 export const ServerError = 500;
 export const BadGateway = 502;
+export const CastError = 501;

@@ -6,6 +6,7 @@ import {
   updateOne,
   deleteOne,
 } from "../../utils/dbQueryHelper.js";
+import {logger} from "../../utils/logger.js";
 import { badRequest, notFound } from "../../utils/responseHandler.js";
 import bcrypt from "bcryptjs";
 
@@ -15,7 +16,12 @@ export const createUserBL = async (req, res) => {
 
     // Check if details empty
     if (!email || !gender || !password || !name) {
-      return badRequest(res, `Some details are missing`);
+      logger.warn({
+        message: "some details are missing",
+        event: "REGISTER",
+        reason: "DETAILS_MISSING",
+      });
+      throw badRequest(res, `Some details are missing`);
     }
 
     // Check if email already exists
@@ -25,12 +31,23 @@ export const createUserBL = async (req, res) => {
     });
 
     if (emailValidate) {
-      return badRequest(res, "Email already exists!");
+      logger.warn({
+        message: "email already exists",
+        event: "REGISTER",
+        reason: "SAME_EMAIL",
+      });
+      throw badRequest(res, "Email already exists!");
     }
 
     // Password Validation Basic
     if (password.length < 6) {
-      return badRequest(res, "Password must be over 6 characters");
+      logger.warn({
+        message: "password must be over 6 characyers",
+        event: "REGISTER",
+        reason: "PASSWORD_VALIDATION",
+      });
+
+      throw badRequest(res, "Password must be over 6 characters");
     }
 
     //If not, then hash the password before creating user.
@@ -48,6 +65,12 @@ export const createUserBL = async (req, res) => {
       },
     });
 
+    logger.log({
+      level: "info",
+      label: "SUPERADMIN",
+      message: `created student: ${email}`,
+      event: "REGISTER",
+    });
     console.log("User created successfully");
 
     return user;
@@ -64,6 +87,12 @@ export const allUsersBL = async (req, res) => {
       filter: { role: "student" },
     });
 
+    logger.log({
+      level: "info",
+      label: "SUPERADMIN",
+      event: "FETCH",
+      message: "fetched all students",
+    });
     return allUsers;
   } catch (error) {
     console.error(error);
@@ -77,7 +106,7 @@ export const editUserBL = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return badRequest(res, "Invalid ID or URL");
+      throw badRequest(res, "Invalid ID or URL");
     }
 
     // Check if user exists
@@ -89,7 +118,7 @@ export const editUserBL = async (req, res) => {
     // console.log("User: ", user);
 
     if (!user) {
-      return notFound(res, "User not Found");
+      throw notFound(res, "User not Found");
     }
 
     // update data
@@ -100,7 +129,7 @@ export const editUserBL = async (req, res) => {
 
     if (password) {
       if (password.length < 6) {
-        return badRequest(res, "Password must be over 6 characters");
+        throw badRequest(res, "Password must be over 6 characters");
       }
 
       // Hash the password
@@ -115,6 +144,13 @@ export const editUserBL = async (req, res) => {
       update: updateData,
     });
 
+    logger.log({
+      label: "SUPERADMIN",
+      message: `updated user: ${user.email}`,
+      event: "UPDATE",
+      ip: req.ip,
+      level: "info",
+    });
     //Update once fetched values
     // await user.save();
 
@@ -133,12 +169,19 @@ export const deleteUserBL = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return notFound(res, "id not found");
+      throw notFound(res, "id not found");
     }
 
     const deleted = await deleteOne({
       model: User,
       filter: { _id: id },
+    });
+
+    logger.log({
+      label: "SUPERADMIN",
+      message: `deleted user: ${id}`,
+      event: "DELETE",
+      level: "info",
     });
 
     return deleted;

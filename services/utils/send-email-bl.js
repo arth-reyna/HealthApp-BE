@@ -2,19 +2,21 @@ import { transporter } from "../../utils/email.js";
 import { User } from "../../models/auth/User.js";
 import { badRequest } from "../../utils/responseHandler.js";
 import crypto from "crypto";
+import { logger } from "../../utils/logger.js";
+import { BaseUserModel } from "../../module/user/user.model.js";
 
 export const sendForgetPassMail = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await BaseUserModel.findOne({ email });
     if (!user) {
       return badRequest(res, "Email not found");
     }
 
     //Create ResetToken
     const resetToken = crypto.randomBytes(32).toString("hex");
-    console.log("Reset Token: ",resetToken);
+    console.log("Reset Token: ", resetToken);
 
     //Create Hash token from reset token
     const hashedToken = crypto
@@ -35,10 +37,16 @@ export const sendForgetPassMail = async (req, res) => {
 
     console.log("Reset Link: ", link);
 
-    const mail = await transporter.sendMail({
+    const mail = transporter.sendMail({
       to: email,
       subject: "Reset your Password",
       html: message,
+    });
+
+    logger.log({
+      level: "info",
+      label: "EMAIL",
+      message: "email sent",
     });
 
     return mail.envelope;

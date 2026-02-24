@@ -1,60 +1,64 @@
-import express from "express";
-import { authMiddleware } from "../../middleware/authMiddleware.js";
-import { roleMiddleware } from "../../middleware/roleMiddleware.js";
-import {
-  allUsers,
-  createUserController,
-  deleteController,
-  editController,
-} from "../../controllers/super-admin/userController.js";
-import {
-  createAdminController,
-  editAdminController,
-  deleteAdminController,
-  getAdminController,
-} from "../../controllers/super-admin/adminController.js";
+// import express from "express";
+// import { authMiddleware } from "../../middleware/authMiddleware.js";
+// import { roleMiddleware } from "../../middleware/roleMiddleware.js";
+// import {
+//   allUsers,
+//   createUserController,
+//   deleteController,
+//   editController,
+// } from "../../controllers/super-admin/userController.js";
+// import {
+//   createAdminController,
+//   editAdminController,
+//   deleteAdminController,
+//   getAdminController,
+// } from "../../controllers/super-admin/adminController.js";
+// import { allTeacherController, createTeacherController, deleteTeacherController, editTeacherController } from "../../controllers/super-admin/teacherController.js";
 
-const role = "superadmin";
-const router = express.Router();
+// const role = "superadmin";
+// const router = express.Router();
 
-// User
-router.get("/user", authMiddleware, roleMiddleware(role), allUsers);
-router.post(
-  "/user",
-  authMiddleware,
-  roleMiddleware(role),
-  createUserController,
-);
-router.put("/user/:id", authMiddleware, roleMiddleware(role), editController);
-router.delete(
-  "/user/:id",
-  authMiddleware,
-  roleMiddleware(role),
-  deleteController,
-);
+// // User
+// router.get("/user", authMiddleware, roleMiddleware(role), allUsers);
+// router.post(
+//   "/user",
+//   authMiddleware,
+//   roleMiddleware(role),
+//   createUserController,
+// );
+// router.put("/user/:id", authMiddleware, roleMiddleware(role), editController);
+// router.delete(
+//   "/user/:id",
+//   authMiddleware,
+//   roleMiddleware(role),
+//   deleteController,
+// );
 
-//Admin
-router.post(
-  "/admin",
-  authMiddleware,
-  roleMiddleware(role),
-  createAdminController,
-);
-router.put(
-  "/admin/:id",
-  authMiddleware,
-  roleMiddleware(role),
-  editAdminController,
-);
-router.delete(
-  "/admin/:id",
-  authMiddleware,
-  roleMiddleware(role),
-  deleteAdminController,
-);
-router.get("/admin", authMiddleware, roleMiddleware(role), getAdminController);
+// //Admin
+// router.post(
+//   "/admin",
+//   authMiddleware,
+//   roleMiddleware(role),
+//   createAdminController,
+// );
+// router.put(
+//   "/admin/:id",
+//   authMiddleware,
+//   roleMiddleware(role),
+//   editAdminController,
+// );
+// router.delete(
+//   "/admin/:id",
+//   authMiddleware,
+//   roleMiddleware(role),
+//   deleteAdminController,
+// );
+// router.get("/admin", authMiddleware, roleMiddleware(role), getAdminController);
 
-//Teacher
-// router.post("/teacher", authMiddleware, roleMiddleware(role), createUserController);
+// //Teacher
+// router.post("/teacher", authMiddleware, roleMiddleware(role), createTeacherController);
+// router.get("/teacher", authMiddleware, roleMiddleware(role), allTeacherController);
+// router.put("/teacher/:id", authMiddleware, roleMiddleware(role), editTeacherController);
+// router.delete("/teacher/:id", authMiddleware, roleMiddleware(role), deleteTeacherController);
 
-export default router;
+// export default router;

@@ -1,5 +1,12 @@
 import { User } from "../../models/auth/User.js";
-import { create, deleteOne, findOne, updateOne, find } from "../../utils/dbQueryHelper.js";
+import {
+  create,
+  deleteOne,
+  findOne,
+  updateOne,
+  find,
+} from "../../utils/dbQueryHelper.js";
+import {logger} from "../../utils/logger.js";
 import { badRequest, notFound } from "../../utils/responseHandler.js";
 import bcrypt from "bcryptjs";
 
@@ -8,7 +15,13 @@ export const createAdminBL = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return badRequest(res, "Email or Password not entered");
+
+      logger.warn({
+        message: "email or password not present",
+        event: "REGISTER",
+        label: "ADMIN"
+      })
+      throw badRequest(res, "Email or Password not entered");
     }
 
     const checkEmail = await findOne({
@@ -18,12 +31,22 @@ export const createAdminBL = async (req, res) => {
 
     //If Mail already present
     if (checkEmail) {
-      return badRequest(res, "Email already exists!");
+      logger.warn({
+        label: "ADMIN",
+        message: "email already exists",
+        event: "REGISTER"
+      })
+      throw badRequest(res, "Email already exists!");
     }
 
     if (password) {
       if (password.length < 6) {
-        return badRequest(res, "Password must be over 6 characters");
+        logger.warn({
+        label: "ADMIN",
+        message: "password length short",
+        event: "REGISTER"
+      })
+        throw badRequest(res, "Password must be over 6 characters");
       }
     }
 
@@ -38,6 +61,13 @@ export const createAdminBL = async (req, res) => {
         role: "admin",
         password: hashPassword,
       },
+    });
+
+    logger.log({
+      label: "ADMIN",
+      event: "REGISTER",
+      message: `created admin: ${user.email}`,
+      level: "info",
     });
 
     console.log("Admin created successfully");
@@ -55,7 +85,12 @@ export const editAdminBL = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return badRequest(res, "Invalid Admin ID");
+      logger.warn({
+        label: "ADMIN",
+        message: "invalid id",
+        event: "UPDATE"
+      })
+      throw badRequest(res, "Invalid Admin ID");
     }
 
     const admin = await findOne({
@@ -64,11 +99,17 @@ export const editAdminBL = async (req, res) => {
     });
 
     if (!admin) {
-      return notFound(res, "Admin not found");
+
+      logger.warn({
+        label: "ADMIN",
+        message: "admin not found",
+        event: "UPDATE"
+      })
+      throw notFound(res, "Admin not found");
     }
 
     if (admin.role !== "admin") {
-      return badRequest(res, "role is not admin")
+      throw badRequest(res, "role is not admin");
     }
 
     const { password, ...otherData } = req.body;
@@ -76,7 +117,12 @@ export const editAdminBL = async (req, res) => {
 
     if (password) {
       if (password.length < 6) {
-        return badRequest(res, "Password must be over 6 characters");
+        logger.warn({
+        label: "ADMIN",
+        message: "password length short",
+        event: "UPDATE"
+      })
+        throw badRequest(res, "Password must be over 6 characters");
       }
 
       // Hash the password
@@ -90,6 +136,12 @@ export const editAdminBL = async (req, res) => {
       update: updateData,
     });
 
+    logger.log({
+      level: "info",
+      label: "ADMIN",
+      event: "UPDATE",
+      message: `updated admin: ${id}`,
+    });
     console.log("Admin updated successfully");
 
     return updated;
@@ -103,46 +155,57 @@ export const deleteAdminBL = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if(!id){
+    if (!id) {
+
+      logger.warn({
+        label: "ADMIN",
+        message: "id not found",
+        event: "DELETE"
+      })
       throw notFound(res, "id not found");
     }
 
     //Check if ID role is admin only or not
     const admin = await findOne({
       model: User,
-      filter: {_id : id}
-    })
+      filter: { _id: id },
+    });
+
     console.log("Admin ROle: ", admin.role);
 
-    if (admin.role !== "admin" || !admin.id){
-      throw badRequest(res, "role is not admin")
+    if (admin.role !== "admin" || !admin.id) {
+      throw badRequest(res, "role is not admin");
     }
 
     const deleted = await deleteOne({
       model: User,
-      filter: {_id: id }
+      filter: { _id: id },
+    });
+
+    logger.log({
+      label: "ADMIN",
+      message: `deleted admin: ${id}`,
+      level: "info",
+      event: "DELETE"
     });
 
     return deleted;
   } catch (error) {
-
     console.error(error);
     throw error;
   }
-}
+};
 
 export const getAllAdminBL = async (req, res) => {
   try {
     const allAdmins = await find({
-      model: User, 
-      filter: {role: "admin"},
+      model: User,
+      filter: { role: "admin" },
     });
 
     return allAdmins;
-
   } catch (error) {
     console.error(error);
     throw error;
-
   }
-}
+};

@@ -1,14 +1,21 @@
 import express from "express";
-import { loginUser, logoutController, register, resetController, forgotPassword} from "../../controllers/auth/authController.js";
+import {
+  loginUser,
+  logoutController,
+  register,
+  resetController,
+  forgotPassword,
+} from "../../controllers/auth/authController.js";
+import {
+  loginUserController,
+  logoutUserController,
+} from "../../module/user/user.controller.js";
 
 const router = express.Router();
 
-// till route: /api/auth/<>
-
-// Auth Routes
-router.post("/register", register);
-router.post("/login", loginUser);
-router.post("/logout", logoutController);
+// router.post("/register", register);
+router.post("/login", loginUserController);
+router.post("/logout", logoutUserController);
 router.post("/reset", forgotPassword);
 router.post("/reset/:id/:token", resetController);
 

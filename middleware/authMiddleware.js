@@ -1,6 +1,8 @@
 import { User } from "../models/auth/User.js";
+import { BaseUserModel } from "../module/user/user.model.js";
 import { verifyToken } from "../utils/jwt.js";
 import { badRequest } from "../utils/responseHandler.js";
+import { AppError } from "../utils/AppError.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
@@ -14,19 +16,19 @@ export const authMiddleware = async (req, res, next) => {
         console.log("Payload: ", payload);
         req.user = payload;
 
-        const role = await User.findOne({ payload });
-        // console.log(role);
+        const role = await BaseUserModel.findOne({ _id: payload.id });
+        console.log("Middleware User: ", role);
 
         next();
       } else {
         throw new Error("Not Authorized");
       }
     } else {
-      return badRequest(res, "Token not present");
+      throw new AppError(404, "Token not present");
     }
   } catch (error) {
     console.error("Error during Middleware Auth: ", error.message);
 
-    return badRequest(res, "Token not present");
+    throw new AppError(404, "Token not present");
   }
 };

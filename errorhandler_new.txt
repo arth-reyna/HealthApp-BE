@@ -1,0 +1,16 @@
+import { internalServerError } from "../utils/responseHandler.js";
+import { sendError } from "../utils/errorResponseHandler.js";
+
+export const globalErrorHandler = async (err, req, res, next) => {
+  try {
+    if (err.name === "CastError")
+      return sendError(res, 404, "invalid mongodb object id");
+
+    if (err.name === "ValidationError") return sendError(res, 400, err.message);
+
+    if (err.name === "NotFound") return sendError(res, 400, err.message);
+    if (err.name === "InternalServerError") return sendError(res, 500, err.message);
+  } catch (error) {
+    console.error("global error : ", error);
+  }
+};

@@ -6,7 +6,12 @@ import { roleMiddleware } from "../../middleware/roleMiddleware.js";
 const router = express.Router();
 
 // Super Admin Routes
-router.get("/overview", authMiddleware, roleMiddleware("superadmin"), overviewController);
+router.get(
+  "/overview",
+  authMiddleware,
+  roleMiddleware("superadmin"),
+  overviewController,
+);
 // router.get('/users', authMiddleware, roleMiddleware("superadmin"), allUsers);
 
 // router.get('/user/:id', getSpecificUserController);

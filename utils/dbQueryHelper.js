@@ -19,18 +19,21 @@ export const create = async (data) => {
 };
 
 export const updateOne = async (data) => {
-  const { model, filter, update } = data;
-  const result = await model.findOneAndUpdate(
-    filter,
-    { $set: update },
-    { new: true },
-  );
+  const { model, filter, update, options = { new: true } } = data;
+  const result = await model.findOneAndUpdate(filter, update, options);
   return result;
 };
 
 export const updateMany = async (data) => {
   const { model, filter, update } = data;
   const result = await model.updateMany(filter, { $set: update });
+
+  return result;
+};
+
+export const findByIdAndUpdate = async (data) => {
+  const { model, id, update, options = { new: true } } = data;
+  const result = await model.findByIdAndUpdate(id, update, options);
 
   return result;
 };

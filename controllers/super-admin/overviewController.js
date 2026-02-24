@@ -7,7 +7,6 @@ export const overviewController = async (req, res, next) => {
 
     return sendSuccess(res, "Admin Dashboard", dashboardData);
   } catch (error) {
-    console.error("overviewController Error: ", error.message);
     next(error);
   }
 };

@@ -5,8 +5,6 @@ export const generateToken = async (id, role, res) => {
     expiresIn: "1h",
   });
 
-  console.log("Token from jwt: ", token);
-
   res.cookie("token", token, {
     httpOnly: false,
     signed: false,

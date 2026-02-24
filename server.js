@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import baseRoutes from "./routes/baseRoutes.js";
+import { globalErrorHandler } from "./middleware/errorHandlerMiddleware.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
@@ -13,8 +14,8 @@ const PORT = process.env.PORT || 5001;
 // Initialize Server
 const app = express();
 
-const allowedOrigins = "http://localhost:5173/";
-
+const allowedOrigins = "http://localhost:3000/";
+  
 // const corsOption = {
 //   origin: ["http://localhost:5173/","http://localhost:5001/api/auth/login", "http://localhost:3000"],
 //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -47,6 +48,9 @@ app.get("/", (req, res) => {
 
 // Base Route
 app.use("/api", baseRoutes);
+
+//Global Error Handler
+app.use(globalErrorHandler);
 
 //Server Connection
 const startServerAndDatabase = async () => {

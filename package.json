@@ -24,10 +24,13 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
+    "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.1.0",
     "mongoose": "^9.1.6",
     "nodemailer": "^8.0.1",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }
